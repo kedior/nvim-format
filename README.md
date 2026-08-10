@@ -46,7 +46,7 @@ $ ./scripts/nvim-format -j 8 .                 # 并行度(默认 4)
 ## 作为 skill 使用
 
 本仓库是符合 [Agent Skills 规范](https://agentskills.io/specification) 的自包含 skill
-(SKILL.md + scripts/ + lua/ 一起分发,全部用相对路径,拷贝到任何目录都能运行)。
+(SKILL.md + scripts/ 一起分发,全部用相对路径,拷贝到任何目录都能运行)。
 把整个目录放进所用 agent 的 skills 目录即可,或直接按上文相对路径调用。
 
 ## 原理

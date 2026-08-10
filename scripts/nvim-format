@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# nvim-format — 用 Neovim(conform.nvim) 配置的同一个格式化工具格式化任何语言的代码。
+#
+# 入口包装:直接运行 scripts/nvim-format,或软链到 PATH(如 ~/.local/bin)后
+# 用命令名调用。内部解析脚本真实路径(兼容符号链接),再执行同目录的 nvim_format.py。
+set -euo pipefail
+
+# 解析脚本真实路径(兼容符号链接,Linux/macOS 通用;macOS 无 readlink -f,故手动展开)
+SOURCE="${BASH_SOURCE[0]}"
+while [ -L "$SOURCE" ]; do
+  DIR="$(CDPATH= cd -- "$(dirname -- "$SOURCE")" && pwd)"
+  SOURCE="$(readlink "$SOURCE")"
+  case "$SOURCE" in /*) ;; *) SOURCE="$DIR/$SOURCE" ;; esac
+done
+DIR="$(CDPATH= cd -- "$(dirname -- "$SOURCE")" && pwd)"
+
+exec python3 "$DIR/nvim_format.py" "$@"

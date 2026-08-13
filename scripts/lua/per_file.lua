@@ -28,22 +28,39 @@ local ok, err = pcall(function()
 	io.stdout:write("INFO:" .. vim.json.encode(infos) .. "\n")
 	local lsp_mode = conform.default_format_opts.lsp_format or "never"
 	io.stdout:write("LSP_MODE:" .. tostring(lsp_mode) .. "\n")
+	-- 判断 client 是否具备格式化能力:优先用 supports_method(正确反映
+	-- self-mapping / 动态注册,例如 ruff 不声明静态 capability 但实际支持格式化),
+	-- 旧版 nvim 无该方法时兜底读静态 capabilities。
+	local function supports_format(c)
+		if c.supports_method then
+			local ok, yes = pcall(c.supports_method, c, "textDocument/formatting")
+			if ok and yes then
+				return true
+			end
+		end
+		local cap = c.server_capabilities
+		return not not (cap and (cap.documentFormattingProvider or cap.documentRangeFormattingProvider))
+	end
 	local lsp_attached = false
 	if #names == 0 and lsp_mode ~= "never" and __ALLOW_LSP__ then
 		lsp_attached = vim.wait(__WAIT_MS__, function()
 			for _, c in ipairs(vim.lsp.get_clients({ bufnr = 0 })) do
-				local cap = c.server_capabilities
-				if cap and (cap.documentFormattingProvider or cap.documentRangeFormattingProvider) then
+				if supports_format(c) then
 					return true
 				end
 			end
 			return false
 		end)
 		local cl = {}
+		local fmt_cl = {}
 		for _, c in ipairs(vim.lsp.get_clients({ bufnr = 0 })) do
 			cl[#cl + 1] = c.name
+			if supports_format(c) then
+				fmt_cl[#fmt_cl + 1] = c.name
+			end
 		end
 		io.stdout:write("CLIENTS:" .. vim.json.encode(cl) .. "\n")
+		io.stdout:write("FMT_CLIENTS:" .. vim.json.encode(fmt_cl) .. "\n")
 		io.stdout:write("LSP_ATTACHED:" .. tostring(lsp_attached) .. "\n")
 	end
 	local r = conform.format({ bufnr = 0, timeout_ms = __FMT_TIMEOUT_MS__ })

@@ -41,6 +41,9 @@ $ ./scripts/nvim-format --list                 # 查看 nvim 为哪些语言配�
 $ ./scripts/nvim-format --batch .              # 大项目:单 nvim 会话批量处理(更快)
 $ ./scripts/nvim-format --no-lsp .             # 不用 LSP 兜底
 $ ./scripts/nvim-format -j 8 .                 # 并行度(默认 4)
+$ ./scripts/nvim-format --timeout 5000 .       # 等待 LSP 附加的毫秒数(默认 3000)
+$ ./scripts/nvim-format --fmt-timeout 20000 .  # conform 格式化超时毫秒数(默认 10000)
+$ ./scripts/nvim-format -v --check .           # -v 详细输出(--check 时打印 diff)
 ```
 
 ## 作为 skill 使用

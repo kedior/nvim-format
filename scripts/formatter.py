@@ -38,13 +38,14 @@ def parse_markers(out):
             "INFO",
             "LSP_MODE",
             "CLIENTS",
+            "FMT_CLIENTS",
             "LSP_ATTACHED",
             "FMT",
             "WROTE",
         ):
             if line.startswith(key + ":"):
                 payload = line[len(key) + 1 :]
-                if key in ("NAMES", "INFO", "CLIENTS", "WROTE"):
+                if key in ("NAMES", "INFO", "CLIENTS", "FMT_CLIENTS", "FMT", "WROTE"):
                     try:
                         parsed[key] = json.loads(payload)
                     except ValueError:
@@ -60,7 +61,8 @@ def parse_markers(out):
 def describe(parsed):
     names = parsed.get("NAMES") or []
     infos = parsed.get("INFO") or []
-    clients = parsed.get("CLIENTS") or []
+    # 优先用支持格式化的 LSP(FMT_CLIENTS),避免把只做诊断的 client(如 pyright)计入
+    clients = parsed.get("FMT_CLIENTS") or parsed.get("CLIENTS") or []
     parts = []
     if names:
         warn = []

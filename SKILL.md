@@ -21,8 +21,7 @@ license: MIT
 ```
 nvim-format/
 ├── SKILL.md              # 本文件(agent 入口)
-├── README.md             # 仓库首页(给人看)
-├── LICENSE               # MIT
+├── README.md             # 仓库首页(给人看,含许可证说明)
 └── scripts/
     ├── nvim-format       # 可执行入口(推荐)
     ├── nvim_format.py    # Python 入口(参数解析 + 主流程)
@@ -54,6 +53,9 @@ $ ./scripts/nvim-format --list                 # 查看 nvim 为哪些语言配�
 $ ./scripts/nvim-format --batch .              # 大项目:单个 nvim 会话批量处理(更快)
 $ ./scripts/nvim-format --no-lsp .             # 不用 LSP 兜底,只格式化 conform 显式配置的文件类型
 $ ./scripts/nvim-format -j 8 .                 # 并行度(默认 4)
+$ ./scripts/nvim-format --timeout 5000 .       # 等待 LSP 附加的毫秒数(默认 3000;机器慢/首次启动可调大)
+$ ./scripts/nvim-format --fmt-timeout 20000 .  # conform 格式化超时毫秒数(默认 10000)
+$ ./scripts/nvim-format -v --check .           # -v 详细输出(--check 时打印 diff)
 ```
 
 或直接调用 Python 入口:

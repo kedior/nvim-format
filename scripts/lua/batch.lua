@@ -21,6 +21,19 @@ local ok, err = pcall(function()
 		error("无法加载 conform.nvim: " .. tostring(conform))
 	end
 	local lsp_mode = conform.default_format_opts.lsp_format or "never"
+	-- 与 per_file.lua 相同的 LSP 能力判断:supports_method 优先(正确反映
+	-- self-mapping / 动态注册,例如 ruff 不声明静态 capability 但实际支持格式化),
+	-- 旧版 nvim 无该方法时兜底读静态 capabilities。
+	local function supports_format(c)
+		if c.supports_method then
+			local sok, yes = pcall(c.supports_method, c, "textDocument/formatting")
+			if sok and yes then
+				return true
+			end
+		end
+		local cap = c.server_capabilities
+		return not not (cap and (cap.documentFormattingProvider or cap.documentRangeFormattingProvider))
+	end
 	local files = vim.fn.readfile(list_file)
 	local results = {}
 	for i, path in ipairs(files) do
@@ -37,8 +50,7 @@ local ok, err = pcall(function()
 			if needs_lsp then
 				attached = vim.wait(__WAIT_MS__, function()
 					for _, cl in ipairs(vim.lsp.get_clients({ bufnr = 0 })) do
-						local cap = cl.server_capabilities
-						if cap and (cap.documentFormattingProvider or cap.documentRangeFormattingProvider) then
+						if supports_format(cl) then
 							return true
 						end
 					end
